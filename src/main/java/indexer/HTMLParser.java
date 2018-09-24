@@ -1,12 +1,11 @@
 package indexer;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
-import javax.lang.model.util.Elements;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,20 +14,21 @@ import java.util.Map;
  */
 public class HTMLParser {
 
-    private List<Map<String, Integer>> documents;
+    private Map<String,Map<String, Integer>> documents;
     private Map<String, Integer> vocabulary;
+    private List<String> stopWords;
 
-    public HTMLParser(List<Map<String, Integer>> documents, Map<String, Integer> vocabulary){
+    public HTMLParser(Map<String,Map<String, Integer>> documents, Map<String, Integer> vocabulary){
         this.documents = documents;
         this.vocabulary = vocabulary;
+        this.stopWords = loadStopWords();
     }
 
-
-    public List<Map<String, Integer>> getDocuments() {
+    public Map<String,Map<String, Integer>> getDocuments() {
         return documents;
     }
 
-    public void setDocuments(List<Map<String, Integer>> documents) {
+    public void setDocuments(Map<String,Map<String, Integer>> documents) {
         this.documents = documents;
     }
 
@@ -40,23 +40,42 @@ public class HTMLParser {
         this.vocabulary = vocabulary;
     }
 
-    public void parseFile(String fileLocation){
-        Document doc = null;
+    private List<String> loadStopWords(){ //Llenarlo puede ser con un archivo
+        List<String> stopWords = new LinkedList<String>();
+        stopWords.add("de");
+        stopWords.add("del");
+        stopWords.add("las");
+        return stopWords;
+    }
+
+    public void parseFile(String fileName, String filePath){
+        File inputFile = new File(filePath + fileName);
+        String doc = "";
         try {
-            doc = Jsoup.connect(fileLocation).get();
+            doc = Jsoup.parse(inputFile, "UTF-8").text();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        Elements links = (Elements) doc.select("a");
-        Elements sections = (Elements) doc.select("section");
-        Elements logo = (Elements) doc.select(".spring-logo--container");
-        Elements pagination = (Elements) doc.select("#pagination_control");
-        Elements divsDescendant = (Elements) doc.select("header div");
-        Elements divsDirect = (Elements) doc.select("header > div");
+        doc = doc.toLowerCase();
+        doc = doc.replaceAll("[~`!@#$%^&*()-+=:;'\",<.>/?¿]",""); //OJO falta quitar los links
+//        System.out.println(doc);
+        String[] text = doc.split(" ");
+        Map<String,Integer> words = new HashMap<String,Integer>();
+        for(int i = 0; i < text.length; ++i){
+            if(text[i].length() < 30 && !stopWords.contains(text[i])) {
+                if (!words.containsKey(text[i])) {
+                    words.put(text[i], 1);
+                } else {
+                    words.put(text[i], words.get(text[i]) + 1);
+                }
+                if (!vocabulary.containsKey(text[i])) {
+                    vocabulary.put(text[i], 1);
+                } else {
+                    vocabulary.put(text[i], vocabulary.get(text[i]) + 1);
+                }
+            }
+        }
+        this.documents.putIfAbsent(fileName,words);
     }
-
-
-
 
 }
