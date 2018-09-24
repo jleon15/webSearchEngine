@@ -9,48 +9,47 @@ import java.util.Map;
  */
 public class FileManager {
 
-    private Map<String,Map<String, Integer>> documents;
-    private Map<String, Integer> vocabulary;
+    private static final String RESULTS_DIRECTORY = "./src/main/java/resources/Results/";
+
+    private Map<String, Map<String, Double>> documents;
+    private Map<String, Double> vocabulary;
     private PrintWriter writer;
 
-    public FileManager(Map<String,Map<String, Integer>> documents, Map<String, Integer> vocabulary) {
+    public FileManager(Map<String, Map<String, Double>> documents, Map<String, Double> vocabulary) {
         this.documents = documents;
         this.vocabulary = vocabulary;
         this.writer = null;
     }
 
-    public Map<String,Map<String, Integer>> getDocuments() {
+    public Map<String, Map<String, Double>> getDocuments() {
         return documents;
     }
 
-    public void setDocuments(Map<String,Map<String, Integer>> documents) {
+    public void setDocuments(Map<String, Map<String, Double>> documents) {
         this.documents = documents;
     }
 
-    public Map<String, Integer> getVocabulary() {
+    public Map<String, Double> getVocabulary() {
         return vocabulary;
     }
 
-    public void setVocabulary(Map<String, Integer> vocabulary) {
+    public void setVocabulary(Map<String, Double> vocabulary) {
         this.vocabulary = vocabulary;
     }
 
-    private void writeToFile (int index, String value){
-        switch (index){
-            case 0:
-            {
+    private void writeToFile(int index, String value) {
+        switch (index) {
+            case 0: {
                 this.completeSpaces(value, 30);
                 this.writer.print(" ");
                 break;
             }
-            case 1:
-            {
+            case 1: {
                 this.completeSpaces(value, 12);
                 this.writer.print(" ");
                 break;
             }
-            default:
-            {
+            default: {
                 this.completeSpaces(value, 20);
                 this.writer.println();
                 break;
@@ -58,45 +57,58 @@ public class FileManager {
         }
     }
 
-    private void completeSpaces (String value, int size){
-        if (value.length() < size){
-            for (int i = value.length() + 1; i < size; i++){
+    private void completeSpaces(String value, int size) {
+        if (value.length() < size) {
+            for (int i = value.length() + 1; i < size; i++) {
                 value += " ";
             }
             this.writer.print(value);
         }
     }
 
-    public void generateTokFiles(Map<String,Map<String, Integer>> documents, String filePath){
-        int max = 1;
-        for (Map.Entry<String,Map<String,Integer>> entry: this.documents.entrySet()){
+    public void generateTokFiles() {
+        double max;
+        for (Map.Entry<String, Map<String, Double>> entry : this.documents.entrySet()) {
             try {
-                this.writer = new PrintWriter(filePath + entry.getKey().replace(".html",".tok"));
+                this.writer = new PrintWriter(RESULTS_DIRECTORY + entry.getKey().replace(".html", ".tok"));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            //max = entry.; OJO Calcular el máximo
-            for (Map.Entry<String,Integer> word: entry.getValue().entrySet()){
-                this.writeToFile(0,word.getKey());
-                this.writeToFile(1,word.getValue().toString());
-                this.writeToFile(2,Integer.toString(word.getValue()/max));
+
+            max = entry.getValue().entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
+
+            for (Map.Entry<String, Double> word : entry.getValue().entrySet()) {
+                this.writeToFile(0, word.getKey());
+                this.writeToFile(1, word.getValue().toString());
+                System.out.println( Double.toString(word.getValue() / max));
+                this.writeToFile(2, Double.toString(word.getValue() / max));
+
             }
             this.writer.close();
         }
     }
 
-    public void generateVocabularyFile(Map<String,Integer> vocabulary, String filePath){
+    public void generateVocabularyFile() {
         try {
-            this.writer = new PrintWriter(filePath + "vocabulario.txt");
+            this.writer = new PrintWriter(RESULTS_DIRECTORY + "vocabulario.txt");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        for (Map.Entry<String,Integer> word: vocabulary.entrySet()){
-            this.writeToFile(0,word.getKey());
-            this.writeToFile(1,word.getValue().toString());
-            this.writeToFile(2,word.getValue().toString()); //OJO Calcular la cantidad de documentos en los que sale
+        for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
+            this.writeToFile(0, word.getKey());
+            this.writeToFile(1, word.getValue().toString());
+            this.writeToFile(2, Integer.toString(this.calculateTotalAppearancesInDocuments(word.getKey())));
         }
         this.writer.close();
+    }
 
+    private int calculateTotalAppearancesInDocuments(String word) {
+        int total = 0;
+        for (Map.Entry<String, Map<String, Double>> document : this.documents.entrySet()) {
+            if(document.getValue().containsKey(word)) {
+                total++;
+            }
+        }
+        return total;
     }
 }

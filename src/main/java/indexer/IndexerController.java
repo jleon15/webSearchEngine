@@ -12,33 +12,33 @@ public class IndexerController {
 
     private static final String BASE_DIRECTORY = "./src/main/java/resources/Coleccion/";
 
-    private Map<String,Map<String,Integer>> documents;
-    private Map<String, Integer> vocabulary;
+    private Map<String,Map<String,Double>> documents;
+    private Map<String, Double> vocabulary;
     private HTMLParser htmlParser;
     private FileManager fileManager;
 
     private String[] textfiles;
 
     public IndexerController() {
-        this.documents = new HashMap<String,Map<String,Integer>>();
-        this.vocabulary = new HashMap<String, Integer>();
+        this.documents = new HashMap<String,Map<String,Double>>();
+        this.vocabulary = new HashMap<String, Double>();
         this.htmlParser = new HTMLParser(this.documents, this.vocabulary);
         this.fileManager = new FileManager(this.documents, this.vocabulary);
     }
 
-    public Map<String,Map<String, Integer>> getDocuments() {
+    public Map<String,Map<String, Double>> getDocuments() {
         return documents;
     }
 
-    public void setDocuments(Map<String,Map<String, Integer>> documents) {
+    public void setDocuments(Map<String,Map<String, Double>> documents) {
         this.documents = documents;
     }
 
-    public Map<String, Integer> getVocabulary() {
+    public Map<String, Double> getVocabulary() {
         return vocabulary;
     }
 
-    public void setVocabulary(Map<String, Integer> vocabulary) {
+    public void setVocabulary(Map<String, Double> vocabulary) {
         this.vocabulary = vocabulary;
     }
 
@@ -63,10 +63,9 @@ public class IndexerController {
 
         FilenameFilter filter = new FilenameFilter(){
             public boolean accept(File dir, String fileName) {
-                return fileName.endsWith("html");
+                return fileName.endsWith("1_AP.html");
             }
         };
-
 
         this.textfiles = file.list(filter);
         if(this.textfiles == null){
@@ -81,8 +80,8 @@ public class IndexerController {
     }
 
     private void generateFiles() {
-        this.fileManager.generateTokFiles(this.documents, this.BASE_DIRECTORY);
-        this.fileManager.generateVocabularyFile(this.vocabulary, this.BASE_DIRECTORY);
+        this.fileManager.generateTokFiles();
+        this.fileManager.generateVocabularyFile();
     }
 
     public static void main (String args[]){

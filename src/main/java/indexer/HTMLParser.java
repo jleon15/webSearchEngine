@@ -2,53 +2,61 @@ package indexer;
 
 import org.jsoup.Jsoup;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  *
  */
 public class HTMLParser {
 
-    private Map<String,Map<String, Integer>> documents;
-    private Map<String, Integer> vocabulary;
+    private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?";
+    private static final String STOPWORDS_FILE_PATH = "./src/main/java/resources/stopwords.txt";
+    private static final String NUMBERS_WORDS_REGEX = "([A-Za-z]+[\\d~`!@#$%^&*()-+=:;'\",<.>/?¿@]+[\\w@]*|[\\d~`!@#$%^&*()-+=:;'\",<.>/?¿@]+[A-Za-z]+[\\w@]*)";
+    private static final String SPECIAL_SYMBOLS_REGEX = "[~`!@#$%^&*()-+=:;'\",<.>/?¿]";
+
+    private Map<String,Map<String, Double>> documents;
+    private Map<String, Double> vocabulary;
     private List<String> stopWords;
 
-    public HTMLParser(Map<String,Map<String, Integer>> documents, Map<String, Integer> vocabulary){
+    HTMLParser(Map<String,Map<String, Double>> documents, Map<String, Double> vocabulary){
         this.documents = documents;
         this.vocabulary = vocabulary;
-        this.stopWords = loadStopWords();
+        this.stopWords = new LinkedList<>();
+        this.loadStopWords();
     }
 
-    public Map<String,Map<String, Integer>> getDocuments() {
+    public Map<String,Map<String, Double>> getDocuments() {
         return documents;
     }
 
-    public void setDocuments(Map<String,Map<String, Integer>> documents) {
+    public void setDocuments(Map<String,Map<String, Double>> documents) {
         this.documents = documents;
     }
 
-    public Map<String, Integer> getVocabulary() {
+    public Map<String, Double> getVocabulary() {
         return vocabulary;
     }
 
-    public void setVocabulary(Map<String, Integer> vocabulary) {
+    public void setVocabulary(Map<String, Double> vocabulary) {
         this.vocabulary = vocabulary;
     }
 
-    private List<String> loadStopWords(){ //Llenarlo puede ser con un archivo
-        List<String> stopWords = new LinkedList<String>();
-        stopWords.add("de");
-        stopWords.add("del");
-        stopWords.add("las");
-        return stopWords;
+    private void loadStopWords(){
+        try (Stream<String> stream = Files.lines(Paths.get(HTMLParser.STOPWORDS_FILE_PATH))) {
+            stream.forEach(this.stopWords::add);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void parseFile(String fileName, String filePath){
+    public void parseFile(String fileName, String filePath) {
         File inputFile = new File(filePath + fileName);
         String doc = "";
         try {
@@ -57,21 +65,25 @@ public class HTMLParser {
             e.printStackTrace();
         }
         doc = doc.toLowerCase();
-        doc = doc.replaceAll("[~`!@#$%^&*()-+=:;'\",<.>/?¿]",""); //OJO falta quitar los links
-//        System.out.println(doc);
+        doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX,"");
+        doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX,"");
+
         String[] text = doc.split(" ");
-        Map<String,Integer> words = new HashMap<String,Integer>();
-        for(int i = 0; i < text.length; ++i){
-            if(text[i].length() < 30 && !stopWords.contains(text[i])) {
-                if (!words.containsKey(text[i])) {
-                    words.put(text[i], 1);
+        Map<String,Double> words = new HashMap<String,Double>();
+        for (String aText : text) {
+            aText = aText.trim();
+            if (!aText.equals("") && !aText.equals(" ") && aText.length() < 30 && !stopWords.contains(aText)) {
+                //System.out.println("*"+aText+"*" + aText.length());
+                if (!words.containsKey(aText)) {
+                    words.put(aText, 1.0);
                 } else {
-                    words.put(text[i], words.get(text[i]) + 1);
+                    words.put(aText, words.get(aText) + 1);
                 }
-                if (!vocabulary.containsKey(text[i])) {
-                    vocabulary.put(text[i], 1);
+                if (!vocabulary.containsKey(aText)) {
+                    vocabulary.put(aText, 1.0);
                 } else {
-                    vocabulary.put(text[i], vocabulary.get(text[i]) + 1);
+                    vocabulary.put(aText, vocabulary.get(aText) + 1);
                 }
             }
         }
