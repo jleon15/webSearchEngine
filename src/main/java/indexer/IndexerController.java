@@ -63,7 +63,7 @@ public class IndexerController {
 
         FilenameFilter filter = new FilenameFilter(){
             public boolean accept(File dir, String fileName) {
-                return fileName.endsWith("1_AP.html");
+                return fileName.endsWith(".html");
             }
         };
 
@@ -75,7 +75,7 @@ public class IndexerController {
 
     private void parseFiles (){
         for (int i = 0; i < textfiles.length; i++) {
-            this.htmlParser.parseFile(textfiles[i], this.BASE_DIRECTORY);
+            this.htmlParser.parseFile(textfiles[i], IndexerController.BASE_DIRECTORY);
         }
     }
 

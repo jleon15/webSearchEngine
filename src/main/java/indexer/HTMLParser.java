@@ -16,27 +16,27 @@ import java.util.stream.Stream;
  */
 public class HTMLParser {
 
-    private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?";
+    private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String STOPWORDS_FILE_PATH = "./src/main/java/resources/stopwords.txt";
-    private static final String NUMBERS_WORDS_REGEX = "([A-Za-z]+[\\d~`!@#$%^&*()-+=:;'\",<.>/?¿@]+[\\w@]*|[\\d~`!@#$%^&*()-+=:;'\",<.>/?¿@]+[A-Za-z]+[\\w@]*)";
-    private static final String SPECIAL_SYMBOLS_REGEX = "[~`!@#$%^&*()-+=:;'\",<.>/?¿]";
+    private static final String NUMBERS_WORDS_REGEX = "([A-Za-z]+[\\d~`!@#$%^&*()\\-+=:;'\",<.>/?¿@]+[\\w@]*|[\\d~`!@#$%^&*()\\-+=:;'\",<.>/?¿@]+[A-Za-z]+[\\w@]*)";
+    private static final String SPECIAL_SYMBOLS_REGEX = "[~`!@#$%^&*\\\\()\\[\\]\\-+=:;'\",<.>/?¿{}|]";
 
-    private Map<String,Map<String, Double>> documents;
+    private Map<String, Map<String, Double>> documents;
     private Map<String, Double> vocabulary;
     private List<String> stopWords;
 
-    HTMLParser(Map<String,Map<String, Double>> documents, Map<String, Double> vocabulary){
+    HTMLParser(Map<String, Map<String, Double>> documents, Map<String, Double> vocabulary) {
         this.documents = documents;
         this.vocabulary = vocabulary;
         this.stopWords = new LinkedList<>();
         this.loadStopWords();
     }
 
-    public Map<String,Map<String, Double>> getDocuments() {
+    public Map<String, Map<String, Double>> getDocuments() {
         return documents;
     }
 
-    public void setDocuments(Map<String,Map<String, Double>> documents) {
+    public void setDocuments(Map<String, Map<String, Double>> documents) {
         this.documents = documents;
     }
 
@@ -48,7 +48,7 @@ public class HTMLParser {
         this.vocabulary = vocabulary;
     }
 
-    private void loadStopWords(){
+    private void loadStopWords() {
         try (Stream<String> stream = Files.lines(Paths.get(HTMLParser.STOPWORDS_FILE_PATH))) {
             stream.forEach(this.stopWords::add);
         } catch (IOException e) {
@@ -66,15 +66,15 @@ public class HTMLParser {
         }
         doc = doc.toLowerCase();
         doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
-        doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX,"");
-        doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX,"");
+        doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, "");
 
         String[] text = doc.split(" ");
-        Map<String,Double> words = new HashMap<String,Double>();
+        Map<String, Double> words = new HashMap<String, Double>();
         for (String aText : text) {
             aText = aText.trim();
-            if (!aText.equals("") && !aText.equals(" ") && aText.length() < 30 && !stopWords.contains(aText)) {
-                //System.out.println("*"+aText+"*" + aText.length());
+            if (!aText.equals("") && !aText.equals(" ") && aText.length() <= 30 && !stopWords.contains(aText)
+                    && !this.isSingleCharacter(aText)) {
                 if (!words.containsKey(aText)) {
                     words.put(aText, 1.0);
                 } else {
@@ -87,7 +87,19 @@ public class HTMLParser {
                 }
             }
         }
-        this.documents.putIfAbsent(fileName,words);
+        this.documents.putIfAbsent(fileName, words);
+    }
+
+    private boolean isSingleCharacter(String word) {
+        if (word.length() > 1) {
+            return false;
+        }
+        try {
+            Integer.parseInt(word);
+            return false;
+        } catch (NumberFormatException e) {
+            return true;
+        }
     }
 
 }
