@@ -99,16 +99,17 @@ public class FileManager {
         }
     }
 
-    public void generateVocabularyFile() {
+    public void generateVocabularyFile(double totalCollectionFiles) {
         try {
             this.writer = new PrintWriter(RESULTS_DIRECTORY + "Vocabulario.txt");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
+            double totalAppearancesInDocuments = this.calculateTotalAppearancesInDocuments(word.getKey());
             this.writeToFile(0, word.getKey());
-            this.writeToFile(1, word.getValue().toString());
-            this.writeToFile(2, Double.toString(this.calculateTotalAppearancesInDocuments(word.getKey())));
+            this.writeToFile(1, Double.toString(totalAppearancesInDocuments));
+            this.writeToFile(2, Double.toString(Math.log10(totalCollectionFiles / totalAppearancesInDocuments)));
         }
         this.writer.close();
     }

@@ -1,6 +1,9 @@
 package indexer;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Entities;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -58,9 +61,35 @@ public class HTMLParser {
 
     public void parseFile(String fileName, String filePath) {
         File inputFile = new File(filePath + fileName);
+        String charset = "UTF-8";
+
+        UniversalDetector universalDetector = new UniversalDetector(null);
+        byte[] buf = new byte[4096];
+        try {
+            FileInputStream fileInputStream = new FileInputStream(inputFile);
+
+            int keepReading;
+            while ((keepReading = fileInputStream.read(buf)) > 0 && !universalDetector.isDone()) {
+                universalDetector.handleData(buf, 0, keepReading);
+            }
+
+            universalDetector.dataEnd();
+
+            String encoding = universalDetector.getDetectedCharset();
+            if (encoding != null) {
+                charset = encoding;
+            }
+            universalDetector.reset();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         String doc = "";
         try {
-            doc = Jsoup.parse(inputFile, "UTF-8").text();
+            Document document = Jsoup.parse(inputFile, charset);
+            document.outputSettings().escapeMode(Entities.EscapeMode.xhtml);
+            doc = document.text();
         } catch (IOException e) {
             e.printStackTrace();
         }

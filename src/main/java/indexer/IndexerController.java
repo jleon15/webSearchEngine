@@ -18,6 +18,7 @@ public class IndexerController {
     private FileManager fileManager;
 
     private String[] textfiles;
+    private double totalCollectionFiles;
 
     public IndexerController() {
         this.documents = new HashMap<String,Map<String,Double>>();
@@ -58,14 +59,10 @@ public class IndexerController {
         this.fileManager = fileManager;
     }
 
-    public void findFiles(){ //CREO que hay que leer el archivo de URLs
+    private void findFiles(){
         File file = new File(BASE_DIRECTORY);
 
-        FilenameFilter filter = new FilenameFilter(){
-            public boolean accept(File dir, String fileName) {
-                return fileName.endsWith(".html");
-            }
-        };
+        FilenameFilter filter = (dir, fileName) -> fileName.endsWith(".html");
 
         this.textfiles = file.list(filter);
         if(this.textfiles == null){
@@ -74,14 +71,15 @@ public class IndexerController {
     }
 
     private void parseFiles (){
-        for (int i = 0; i < textfiles.length; i++) {
-            this.htmlParser.parseFile(textfiles[i], IndexerController.BASE_DIRECTORY);
+        for (String textfile : textfiles) {
+            this.totalCollectionFiles++;
+            this.htmlParser.parseFile(textfile, IndexerController.BASE_DIRECTORY);
         }
     }
 
     private void generateFiles() {
         this.fileManager.generateTokFiles();
-        this.fileManager.generateVocabularyFile();
+        this.fileManager.generateVocabularyFile(this.totalCollectionFiles);
     }
 
     public static void main (String args[]){
