@@ -21,8 +21,8 @@ public class HTMLParser {
 
     private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String STOPWORDS_FILE_PATH = "./src/main/java/resources/stopwords.txt";
-    private static final String NUMBERS_WORDS_REGEX = "([A-Za-z]+[\\d~`!@#$%^&*()\\-+=:;'\",<.>/?¿@]+[\\w@]*|[\\d~`!@#$%^&*()\\-+=:;'\",<.>/?¿@]+[A-Za-z]+[\\w@]*)";
-    private static final String SPECIAL_SYMBOLS_REGEX = "[~`!@#$%^&*\\\\()\\[\\]\\-+=:;'\",<.>/?¿{}|]";
+    private static final String NUMBERS_WORDS_REGEX = "([a-z]+[\\d]+[\\w@]*|[\\d]+[a-z]+[\\w@]*)";
+    private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú\\s]";
 
     private Map<String, Map<String, Double>> documents;
     private Map<String, Double> vocabulary;
@@ -95,8 +95,8 @@ public class HTMLParser {
         }
         doc = doc.toLowerCase();
         doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
-        doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
 
         String[] text = doc.split(" ");
         Map<String, Double> words = new HashMap<String, Double>();
