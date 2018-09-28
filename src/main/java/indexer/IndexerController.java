@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
@@ -50,8 +51,8 @@ public class IndexerController {
     private double totalCollectionFiles;
 
     public IndexerController() {
-        this.documents = new HashMap<String,Map<String,Double>>();
-        this.vocabulary = new HashMap<String, Double>();
+        this.documents = new TreeMap<String,Map<String,Double>>();
+        this.vocabulary = new TreeMap<String, Double>();
         this.htmlParser = new HTMLParser(this.documents, this.vocabulary);
         this.fileManager = new FileManager(this.documents, this.vocabulary);
     }

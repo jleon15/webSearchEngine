@@ -9,10 +9,7 @@ import javax.xml.crypto.dsig.dom.DOMSignContext;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -36,7 +33,7 @@ public class HTMLParser {
     private static final String ACCUTE_LETER_I_REGEX = "&#237|&#205";
     private static final String ACCUTE_LETER_O_REGEX = "&#243|&#211";
     private static final String ACCUTE_LETER_U_REGEX = "&#250|&#218";
-    private static final String ACCUTE_LETER_Ñ_REGEX = "&#241|&#209";
+    private static final String ACCUTE_LETER_N_REGEX = "&#241|&#209";
     private static final String SPECIAL_SPACES_REGEX = "[\n\r]";
 
     private Map<String, Map<String, Double>> documents;
@@ -132,14 +129,14 @@ public class HTMLParser {
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_I_REGEX, "í");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_O_REGEX, "ó");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_U_REGEX, "ú");
-        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_Ñ_REGEX, "ñ");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_N_REGEX, "ñ");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SPACES_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
 
 
         String[] text = doc.split(" ");
-        Map<String, Double> words = new HashMap<String, Double>();
+        Map<String, Double> words = new TreeMap<String, Double>();
         for (String term : text) {
             term = term.trim();
             if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !stopWords.contains(term)
