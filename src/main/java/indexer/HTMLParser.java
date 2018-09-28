@@ -19,10 +19,10 @@ import java.util.stream.Stream;
  */
 public class HTMLParser {
 
-    private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String STOPWORDS_FILE_PATH = "./src/main/java/resources/stopwords.txt";
+    private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String NUMBERS_WORDS_REGEX = "([a-z]+[\\d]+[\\w@]*|[\\d]+[a-z]+[\\w@]*)";
-    private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú\\s]";
+    private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú_\\s]";
 
     private Map<String, Map<String, Double>> documents;
     private Map<String, Double> vocabulary;
@@ -95,24 +95,24 @@ public class HTMLParser {
         }
         doc = doc.toLowerCase();
         doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
-        doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
 
         String[] text = doc.split(" ");
         Map<String, Double> words = new HashMap<String, Double>();
-        for (String aText : text) {
-            aText = aText.trim();
-            if (!aText.equals("") && !aText.equals(" ") && aText.length() <= 30 && !stopWords.contains(aText)
-                    && !this.isSingleCharacter(aText)) {
-                if (!words.containsKey(aText)) {
-                    words.put(aText, 1.0);
+        for (String term : text) {
+            term = term.trim();
+            if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !stopWords.contains(term)
+                    && !this.isSingleCharacter(term)) {
+                if (!words.containsKey(term)) {
+                    words.put(term, 1.0);
+                    if (!vocabulary.containsKey(term)) {
+                        vocabulary.put(term, 1.0);
+                    } else {
+                        vocabulary.put(term, vocabulary.get(term) + 1);
+                    }
                 } else {
-                    words.put(aText, words.get(aText) + 1);
-                }
-                if (!vocabulary.containsKey(aText)) {
-                    vocabulary.put(aText, 1.0);
-                } else {
-                    vocabulary.put(aText, vocabulary.get(aText) + 1);
+                    words.put(term, words.get(term) + 1);
                 }
             }
         }

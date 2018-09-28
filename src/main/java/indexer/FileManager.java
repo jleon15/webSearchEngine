@@ -106,21 +106,11 @@ public class FileManager {
             e.printStackTrace();
         }
         for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
-            double totalAppearancesInDocuments = this.calculateTotalAppearancesInDocuments(word.getKey());
             this.writeToFile(0, word.getKey());
-            this.writeToFile(1, Double.toString(totalAppearancesInDocuments));
-            this.writeToFile(2, Double.toString(Math.log10(totalCollectionFiles / totalAppearancesInDocuments)));
+            this.writeToFile(1, Double.toString(word.getValue()));
+            this.writeToFile(2, Double.toString(Math.log10(totalCollectionFiles / word.getValue())));
         }
         this.writer.close();
     }
 
-    private int calculateTotalAppearancesInDocuments(String word) {
-        int total = 0;
-        for (Map.Entry<String, Map<String, Double>> document : this.documents.entrySet()) {
-            if (document.getValue().containsKey(word)) {
-                total++;
-            }
-        }
-        return total;
-    }
 }
