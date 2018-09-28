@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities;
 import org.mozilla.universalchardet.UniversalDetector;
 
+import javax.xml.crypto.dsig.dom.DOMSignContext;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,6 +31,12 @@ public class HTMLParser {
     private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String NUMBERS_WORDS_REGEX = "([a-z]+[\\d]+[\\w@]*|[\\d]+[a-z]+[\\w@]*)";
     private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú_\\s]";
+    private static final String ACCUTE_LETER_A_REGEX = "&#225|&#193";
+    private static final String ACCUTE_LETER_E_REGEX = "&#233|&#201";
+    private static final String ACCUTE_LETER_I_REGEX = "&#237|&#205";
+    private static final String ACCUTE_LETER_O_REGEX = "&#243|&#211";
+    private static final String ACCUTE_LETER_U_REGEX = "&#250|&#218";
+    private static final String ACCUTE_LETER_Ñ_REGEX = "&#241|&#209";
     private static final String SPECIAL_SPACES_REGEX = "[\n\r]";
 
     private Map<String, Map<String, Double>> documents;
@@ -117,11 +124,19 @@ public class HTMLParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         doc = doc.toLowerCase();
         doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_A_REGEX, "á");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_E_REGEX, "é");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_I_REGEX, "í");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_O_REGEX, "ó");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_U_REGEX, "ú");
+        doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_Ñ_REGEX, "ñ");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SPACES_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
+
 
         String[] text = doc.split(" ");
         Map<String, Double> words = new HashMap<String, Double>();
