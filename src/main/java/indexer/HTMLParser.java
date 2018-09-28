@@ -145,7 +145,8 @@ public class HTMLParser {
     }
 
     /**
-     *
+     * Verifica si una palabra tiene menos de 3 caracteres para no incluila como parte del vocabulario,
+     * pero si tiene 1 o 2 caracteres y es un número, entoces sí se incluyen.
      * @param word
      * @return
      */
