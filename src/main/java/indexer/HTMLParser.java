@@ -19,7 +19,14 @@ import java.util.stream.Stream;
  */
 public class HTMLParser {
 
+    /**
+     * Dirección del archivo que contiene los "stopwords".
+     */
     private static final String STOPWORDS_FILE_PATH = "./src/main/java/resources/stopwords.txt";
+
+    /**
+     * Expresiones regulares que permiten excluir contenido de los htmls.
+     */
     private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String NUMBERS_WORDS_REGEX = "([a-z]+[\\d]+[\\w@]*|[\\d]+[a-z]+[\\w@]*)";
     private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú_\\s]";
@@ -27,6 +34,10 @@ public class HTMLParser {
 
     private Map<String, Map<String, Double>> documents;
     private Map<String, Double> vocabulary;
+
+    /**
+     * Contiene una lista de los "stopwords" que se recuperaron del archivo.
+     */
     private List<String> stopWords;
 
     HTMLParser(Map<String, Map<String, Double>> documents, Map<String, Double> vocabulary) {
@@ -52,6 +63,9 @@ public class HTMLParser {
         this.vocabulary = vocabulary;
     }
 
+    /**
+     * Carga los "stopwords" del archivo correspondiente y los mete en una lista enlazada.
+     */
     private void loadStopWords() {
         try (Stream<String> stream = Files.lines(Paths.get(HTMLParser.STOPWORDS_FILE_PATH))) {
             stream.forEach(this.stopWords::add);
@@ -60,6 +74,15 @@ public class HTMLParser {
         }
     }
 
+    /**
+     * Parsea cada uno de los htmls con Jsoup, y tomando cada uno de los términos:
+     * -Los "filtra" con los regex para que estén de acuerdo a las reglas establecidas.
+     * -Los añade al HashMap de "vocabulary" que posee la palabra y la cantidad de documentos en las que aparece.
+     * -Los añade al HashMap "documents" que posee el nombre del documento y
+     * las palabras del documento con la cantidad de veces que aparece dicha palabra en el documento.
+     * @param fileName
+     * @param filePath
+     */
     public void parseFile(String fileName, String filePath) {
         File inputFile = new File(filePath + fileName);
         String charset = "UTF-8";
@@ -121,6 +144,11 @@ public class HTMLParser {
         this.documents.putIfAbsent(fileName, words);
     }
 
+    /**
+     *
+     * @param word
+     * @return
+     */
     private boolean isSmallWord(String word) {
         if (word.length() > 2) {
             return false;

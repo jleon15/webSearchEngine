@@ -12,7 +12,12 @@ public class FileManager {
     private static final String RESULTS_DIRECTORY = "./src/main/java/resources/Results/";
 
     private Map<String, Map<String, Double>> documents;
+
     private Map<String, Double> vocabulary;
+
+    /**
+     * Permite escribir en los archivos de salida.
+     */
     private PrintWriter writer;
 
     public FileManager(Map<String, Map<String, Double>> documents, Map<String, Double> vocabulary) {
@@ -37,6 +42,11 @@ public class FileManager {
         this.vocabulary = vocabulary;
     }
 
+    /**
+     * Escribe en los archivos completando la cantidad de espacios en blanco.
+     * @param index
+     * @param value
+     */
     private void writeToFile(int index, String value) {
         switch (index) {
             case 0: {
@@ -57,6 +67,11 @@ public class FileManager {
         }
     }
 
+    /**
+     * Completa los espacios en blanco.
+     * @param value
+     * @param size
+     */
     private void completeSpaces(String value, int size) {
         if (value.length() < size) {
             for (int i = value.length() + 1; i < size; i++) {
@@ -66,6 +81,11 @@ public class FileManager {
         }
     }
 
+    /**
+     * Escribe valores en el archivo.
+     * @param value
+     * @param maxColumnSize
+     */
     private void writeValue(String value, int maxColumnSize) {
         if (value.length() >= maxColumnSize) {
             value = value.substring(0, maxColumnSize - 1);
@@ -75,6 +95,13 @@ public class FileManager {
         }
     }
 
+    /**
+     * Genera los archivos .tok que contienen:
+     * -Palabra.
+     * -Número de veces que aparece el término en el documento.
+     * -Frecuencia normalizada.
+     * y manda a escribir en ellos.
+     */
     public void generateTokFiles() {
         double max;
         for (Map.Entry<String, Map<String, Double>> entry : this.documents.entrySet()) {
@@ -99,6 +126,11 @@ public class FileManager {
         }
     }
 
+    /**
+     * Genera un archivo con el vocabulario, que contiene la cantidad de documentos en los
+     * que aparece cada parabra y el idf.
+     * @param totalCollectionFiles
+     */
     public void generateVocabularyFile(double totalCollectionFiles) {
         try {
             this.writer = new PrintWriter(RESULTS_DIRECTORY + "Vocabulario.txt");

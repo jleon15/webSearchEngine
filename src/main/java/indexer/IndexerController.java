@@ -10,14 +10,43 @@ import java.util.Map;
  */
 public class IndexerController {
 
+    /**
+     * Tiene el directorio base donde se tienen que buscar todos los archivos de la colección.
+     */
     private static final String BASE_DIRECTORY = "./src/main/java/resources/Coleccion/";
 
+    /**
+     * Este mapa contiene:
+     * -Llave: Nombre del documento html.
+     * -Valor: Mapa <Palabra, Cantidad de veces que aparece esa palabra en el documento>.
+     */
     private Map<String,Map<String,Double>> documents;
+
+    /**
+     * Este mapa contiene:
+     * -Llave: Palabra.
+     * -Valor: Cantidad de documentos en los que aparece dicha palabra.
+     */
     private Map<String, Double> vocabulary;
+
+    /**
+     * Instancia del HTMLParser que sirve para parsear cada uno de los archivos html de la colección.
+     */
     private HTMLParser htmlParser;
+
+    /**
+     * Instancia del FileManaher que sirve para generar los archivos .tok y el de vocabulario.
+     */
     private FileManager fileManager;
 
+    /**
+     * Array que contiene todos los nombres de los archivos a parsear.
+     */
     private String[] textfiles;
+
+    /**
+     * Tiene la cantidad de archivos que posee la colacción.
+     */
     private double totalCollectionFiles;
 
     public IndexerController() {
@@ -43,22 +72,10 @@ public class IndexerController {
         this.vocabulary = vocabulary;
     }
 
-    public HTMLParser getHtmlParser() {
-        return htmlParser;
-    }
-
-    public void setHtmlParser(HTMLParser htmlParser) {
-        this.htmlParser = htmlParser;
-    }
-
-    public FileManager getFileManager() {
-        return fileManager;
-    }
-
-    public void setFileManager(FileManager fileManager) {
-        this.fileManager = fileManager;
-    }
-
+    /**
+     * Encuentra cuáles son cada uno de los archivos que se deben parsear,
+     * y almacena sus nombre en un array.
+     */
     private void findFiles(){
         File file = new File(BASE_DIRECTORY);
 
@@ -70,6 +87,10 @@ public class IndexerController {
         }
     }
 
+    /**
+     * Itera sobre el array que contiene los nombres de los archivos a parsear y llama
+     * al método de parseo que contiene el HTMLParser.
+     */
     private void parseFiles (){
         for (String textfile : textfiles) {
             this.totalCollectionFiles++;
@@ -77,6 +98,9 @@ public class IndexerController {
         }
     }
 
+    /**
+     * Genera los archivos .tok y el archivo de Vocabulario.
+     */
     private void generateFiles() {
         this.fileManager.generateTokFiles();
         this.fileManager.generateVocabularyFile(this.totalCollectionFiles);
