@@ -23,6 +23,7 @@ public class HTMLParser {
     private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String NUMBERS_WORDS_REGEX = "([a-z]+[\\d]+[\\w@]*|[\\d]+[a-z]+[\\w@]*)";
     private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú_\\s]";
+    private static final String SPECIAL_SPACES_REGEX = "[\n\r]";
 
     private Map<String, Map<String, Double>> documents;
     private Map<String, Double> vocabulary;
@@ -95,6 +96,7 @@ public class HTMLParser {
         }
         doc = doc.toLowerCase();
         doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.SPECIAL_SPACES_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
 
@@ -103,7 +105,7 @@ public class HTMLParser {
         for (String term : text) {
             term = term.trim();
             if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !stopWords.contains(term)
-                    && !this.isSingleCharacter(term)) {
+                    && !this.isSmallWord(term)) {
                 if (!words.containsKey(term)) {
                     words.put(term, 1.0);
                     if (!vocabulary.containsKey(term)) {
@@ -119,8 +121,8 @@ public class HTMLParser {
         this.documents.putIfAbsent(fileName, words);
     }
 
-    private boolean isSingleCharacter(String word) {
-        if (word.length() > 1) {
+    private boolean isSmallWord(String word) {
+        if (word.length() > 2) {
             return false;
         }
         try {

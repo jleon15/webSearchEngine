@@ -94,7 +94,7 @@ public class FileManager {
 
                 }
             }
-
+            this.writer.flush();
             this.writer.close();
         }
     }
@@ -110,6 +110,7 @@ public class FileManager {
             this.writeToFile(1, Double.toString(word.getValue()));
             this.writeToFile(2, Double.toString(Math.log10(totalCollectionFiles / word.getValue())));
         }
+        this.writer.flush();
         this.writer.close();
     }
 
