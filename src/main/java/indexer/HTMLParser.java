@@ -27,13 +27,14 @@ public class HTMLParser {
      */
     private static final String URLS_REGEX = "(http|ftp|https)://([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#\\-]*[\\w@?^=%&/~+#\\-])?";
     private static final String NUMBERS_WORDS_REGEX = "([a-z]+[\\d]+[\\w@]*|[\\d]+[a-z]+[\\w@]*)";
-    private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú_\\s]";
+    private static final String SPECIAL_SYMBOLS_REGEX = "[^a-z0-9ñáéíóú\\s]";
     private static final String ACCUTE_LETER_A_REGEX = "&#225|&#193";
     private static final String ACCUTE_LETER_E_REGEX = "&#233|&#201";
     private static final String ACCUTE_LETER_I_REGEX = "&#237|&#205";
     private static final String ACCUTE_LETER_O_REGEX = "&#243|&#211";
     private static final String ACCUTE_LETER_U_REGEX = "&#250|&#218";
     private static final String ACCUTE_LETER_N_REGEX = "&#241|&#209";
+    private static final String INVERTED_EXCLAMATION_MARK_REGEX = "&#161;";
     private static final String SPECIAL_SPACES_REGEX = "[\n\r]";
 
     private Map<String, Map<String, Double>> documents;
@@ -130,10 +131,10 @@ public class HTMLParser {
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_O_REGEX, "ó");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_U_REGEX, "ú");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_N_REGEX, "ñ");
+        doc = doc.replaceAll(HTMLParser.INVERTED_EXCLAMATION_MARK_REGEX, "");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SPACES_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.SPECIAL_SYMBOLS_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.NUMBERS_WORDS_REGEX, "");
-
 
         String[] text = doc.split(" ");
         Map<String, Double> words = new TreeMap<String, Double>();
