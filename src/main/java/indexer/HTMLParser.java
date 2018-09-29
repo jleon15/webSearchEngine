@@ -3,6 +3,7 @@ package indexer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities;
+import org.jsoup.parser.Parser;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import javax.xml.crypto.dsig.dom.DOMSignContext;
@@ -13,7 +14,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- *
+ * Contiene la lógica relacionada al parseo de los documentos y la aplicación de las reglas del indexador para
+ * reducir el contenido de los archivos a los términos relevantes.
  */
 public class HTMLParser {
 
@@ -35,6 +37,7 @@ public class HTMLParser {
     private static final String ACCUTE_LETER_U_REGEX = "&#250|&#218";
     private static final String ACCUTE_LETER_N_REGEX = "&#241|&#209";
     private static final String INVERTED_EXCLAMATION_MARK_REGEX = "&#161;";
+    private static final String SPACE_CODE_REGEX = "&nbsp;|&#160;|&#32;|&#x20";
     private static final String SPECIAL_SPACES_REGEX = "[\n\r]";
 
     private Map<String, Map<String, Double>> documents;
@@ -50,22 +53,6 @@ public class HTMLParser {
         this.vocabulary = vocabulary;
         this.stopWords = new LinkedList<>();
         this.loadStopWords();
-    }
-
-    public Map<String, Map<String, Double>> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(Map<String, Map<String, Double>> documents) {
-        this.documents = documents;
-    }
-
-    public Map<String, Double> getVocabulary() {
-        return vocabulary;
-    }
-
-    public void setVocabulary(Map<String, Double> vocabulary) {
-        this.vocabulary = vocabulary;
     }
 
     /**
@@ -125,6 +112,7 @@ public class HTMLParser {
 
         doc = doc.toLowerCase();
         doc = doc.replaceAll(HTMLParser.URLS_REGEX, "");
+        doc = doc.replaceAll(HTMLParser.SPACE_CODE_REGEX, " ");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_A_REGEX, "á");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_E_REGEX, "é");
         doc = doc.replaceAll(HTMLParser.ACCUTE_LETER_I_REGEX, "í");
@@ -142,6 +130,7 @@ public class HTMLParser {
             term = term.trim();
             if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !stopWords.contains(term)
                     && !this.isSmallWord(term)) {
+
                 if (!words.containsKey(term)) {
                     words.put(term, 1.0);
                     if (!vocabulary.containsKey(term)) {
@@ -173,6 +162,22 @@ public class HTMLParser {
         } catch (NumberFormatException e) {
             return true;
         }
+    }
+
+    public Map<String, Map<String, Double>> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(Map<String, Map<String, Double>> documents) {
+        this.documents = documents;
+    }
+
+    public Map<String, Double> getVocabulary() {
+        return vocabulary;
+    }
+
+    public void setVocabulary(Map<String, Double> vocabulary) {
+        this.vocabulary = vocabulary;
     }
 
 }

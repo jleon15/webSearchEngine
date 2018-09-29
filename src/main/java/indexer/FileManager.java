@@ -5,10 +5,14 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 /**
- *
+ * Contiene la lógica relacionada a la generación de los archivos resultados de correr el programa y generar los
+ * cálculos necesarios para indexar la colección de documentos.
  */
 public class FileManager {
 
+    /**
+     * Contiene el path donde se debe almacenar los resultados.
+     */
     private static final String RESULTS_DIRECTORY = "./src/main/java/resources/Results/";
 
     private Map<String, Map<String, Double>> documents;
@@ -26,31 +30,16 @@ public class FileManager {
         this.writer = null;
     }
 
-    public Map<String, Map<String, Double>> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(Map<String, Map<String, Double>> documents) {
-        this.documents = documents;
-    }
-
-    public Map<String, Double> getVocabulary() {
-        return vocabulary;
-    }
-
-    public void setVocabulary(Map<String, Double> vocabulary) {
-        this.vocabulary = vocabulary;
-    }
-
     /**
      * Escribe en los archivos completando la cantidad de espacios en blanco.
+     *
      * @param index
      * @param value
      */
     private void writeToFile(int index, String value) {
         switch (index) {
             case 0: {
-                this.completeSpaces(value, 30);
+                this.writeValue(value, 30);
                 this.writer.print(" ");
                 break;
             }
@@ -69,25 +58,27 @@ public class FileManager {
 
     /**
      * Completa los espacios en blanco.
+     *
      * @param value
      * @param size
      */
     private void completeSpaces(String value, int size) {
         if (value.length() < size) {
-            for (int i = value.length() + 1; i < size; i++) {
+            for (int i = value.length() + 1; i <= size; i++) {
                 value += " ";
             }
-            this.writer.print(value);
         }
+        this.writer.print(value);
     }
 
     /**
      * Escribe valores en el archivo.
+     *
      * @param value
      * @param maxColumnSize
      */
     private void writeValue(String value, int maxColumnSize) {
-        if (value.length() >= maxColumnSize) {
+        if (value.length() > maxColumnSize) {
             value = value.substring(0, maxColumnSize - 1);
             this.writer.print(value);
         } else {
@@ -111,7 +102,7 @@ public class FileManager {
                 e.printStackTrace();
             }
 
-            if(entry.getValue().entrySet().size() != 0) {
+            if (entry.getValue().entrySet().size() != 0) {
                 max = entry.getValue().entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
 
                 for (Map.Entry<String, Double> word : entry.getValue().entrySet()) {
@@ -129,6 +120,7 @@ public class FileManager {
     /**
      * Genera un archivo con el vocabulario, que contiene la cantidad de documentos en los
      * que aparece cada parabra y el idf.
+     *
      * @param totalCollectionFiles
      */
     public void generateVocabularyFile(double totalCollectionFiles) {
@@ -137,13 +129,31 @@ public class FileManager {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
         for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
             this.writeToFile(0, word.getKey());
             this.writeToFile(1, Double.toString(word.getValue()));
             this.writeToFile(2, Double.toString(Math.log10(totalCollectionFiles / word.getValue())));
         }
+
         this.writer.flush();
         this.writer.close();
+    }
+
+    public Map<String, Map<String, Double>> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(Map<String, Map<String, Double>> documents) {
+        this.documents = documents;
+    }
+
+    public Map<String, Double> getVocabulary() {
+        return vocabulary;
+    }
+
+    public void setVocabulary(Map<String, Double> vocabulary) {
+        this.vocabulary = vocabulary;
     }
 
 }

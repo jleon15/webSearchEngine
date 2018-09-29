@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- *
+ * Controlador de la indexación que maneja el flujo del programa y establece las estructuras de datos utilizadas
+ * para indexar los documentos.
  */
 public class IndexerController {
 
@@ -57,22 +58,6 @@ public class IndexerController {
         this.fileManager = new FileManager(this.documents, this.vocabulary);
     }
 
-    public Map<String,Map<String, Double>> getDocuments() {
-        return documents;
-    }
-
-    public void setDocuments(Map<String,Map<String, Double>> documents) {
-        this.documents = documents;
-    }
-
-    public Map<String, Double> getVocabulary() {
-        return vocabulary;
-    }
-
-    public void setVocabulary(Map<String, Double> vocabulary) {
-        this.vocabulary = vocabulary;
-    }
-
     /**
      * Encuentra cuáles son cada uno de los archivos que se deben parsear,
      * y almacena sus nombre en un array.
@@ -112,6 +97,22 @@ public class IndexerController {
         indexerController.findFiles();
         indexerController.parseFiles();
         indexerController.generateFiles();
+    }
+
+    public Map<String,Map<String, Double>> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(Map<String,Map<String, Double>> documents) {
+        this.documents = documents;
+    }
+
+    public Map<String, Double> getVocabulary() {
+        return vocabulary;
+    }
+
+    public void setVocabulary(Map<String, Double> vocabulary) {
+        this.vocabulary = vocabulary;
     }
 
 }
