@@ -1,6 +1,7 @@
 package indexer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +79,7 @@ public class IndexerController {
      * al método de parseo que contiene el HTMLParser.
      */
     private void parseFiles (){
-        for (String textfile : textfiles) {
+        for (String textfile : this.textfiles) {
             this.totalCollectionFiles++;
             this.htmlParser.parseFile(textfile, IndexerController.BASE_DIRECTORY);
         }
@@ -90,6 +91,11 @@ public class IndexerController {
     private void generateFiles() {
         this.fileManager.generateTokFiles();
         this.fileManager.generateVocabularyFile(this.totalCollectionFiles);
+        try {
+            this.fileManager.generateWtdPostingsIndexFiles();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main (String args[]){

@@ -1,8 +1,12 @@
 package indexer;
 
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.util.Map;
+import javafx.util.Pair;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Contiene la lógica relacionada a la generación de los archivos resultados de correr el programa y generar los
@@ -19,38 +23,37 @@ public class FileManager {
 
     private Map<String, Double> vocabulary;
 
-    /**
-     * Permite escribir en los archivos de salida.
-     */
-    private PrintWriter writer;
-
     public FileManager(Map<String, Map<String, Double>> documents, Map<String, Double> vocabulary) {
         this.documents = documents;
         this.vocabulary = vocabulary;
-        this.writer = null;
     }
 
     /**
      * Escribe en los archivos completando la cantidad de espacios en blanco.
      *
+     * @param writer
      * @param index
      * @param value
      */
-    private void writeToFile(int index, String value) {
+    private void writeToFile(PrintWriter writer, int index, String value, boolean putNewLineIndexFile) {
         switch (index) {
             case 0: {
-                this.writeValue(value, 30);
-                this.writer.print(" ");
+                this.writeValue(writer, value, 30);
+                writer.print(" ");
                 break;
             }
             case 1: {
-                this.writeValue(value, 12);
-                this.writer.print(" ");
+                this.writeValue(writer, value, 12);
+                if (putNewLineIndexFile) {
+                    writer.println();
+                } else {
+                    writer.print(" ");
+                }
                 break;
             }
             default: {
-                this.writeValue(value, 20);
-                this.writer.println();
+                this.writeValue(writer, value, 20);
+                writer.println();
                 break;
             }
         }
@@ -59,30 +62,32 @@ public class FileManager {
     /**
      * Completa los espacios en blanco.
      *
+     * @param writer
      * @param value
      * @param size
      */
-    private void completeSpaces(String value, int size) {
+    private void completeSpaces(PrintWriter writer, String value, int size) {
         if (value.length() < size) {
             for (int i = value.length() + 1; i <= size; i++) {
                 value += " ";
             }
         }
-        this.writer.print(value);
+        writer.print(value);
     }
 
     /**
      * Escribe valores en el archivo.
      *
+     * @param writer
      * @param value
      * @param maxColumnSize
      */
-    private void writeValue(String value, int maxColumnSize) {
+    private void writeValue(PrintWriter writer, String value, int maxColumnSize) {
         if (value.length() > maxColumnSize) {
             value = value.substring(0, maxColumnSize - 1);
-            this.writer.print(value);
+            writer.print(value);
         } else {
-            this.completeSpaces(value, maxColumnSize);
+            this.completeSpaces(writer, value, maxColumnSize);
         }
     }
 
@@ -95,25 +100,30 @@ public class FileManager {
      */
     public void generateTokFiles() {
         double max;
+        PrintWriter writer;
+
         for (Map.Entry<String, Map<String, Double>> entry : this.documents.entrySet()) {
             try {
-                this.writer = new PrintWriter(RESULTS_DIRECTORY + entry.getKey().replace(".html", ".tok"));
+                writer = new PrintWriter(RESULTS_DIRECTORY + entry.getKey().replace(".html", ".tok"));
+
+                if (entry.getValue().entrySet().size() != 0) {
+                    max = entry.getValue().entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
+
+                    for (Map.Entry<String, Double> word : entry.getValue().entrySet()) {
+                        this.writeToFile(writer, 0, word.getKey(), false);
+                        this.writeToFile(writer, 1, word.getValue().toString(), false);
+                        this.writeToFile(writer, 2, Double.toString(word.getValue() / max), false);
+
+                    }
+                }
+
+                writer.flush();
+                writer.close();
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
 
-            if (entry.getValue().entrySet().size() != 0) {
-                max = entry.getValue().entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
-
-                for (Map.Entry<String, Double> word : entry.getValue().entrySet()) {
-                    this.writeToFile(0, word.getKey());
-                    this.writeToFile(1, word.getValue().toString());
-                    this.writeToFile(2, Double.toString(word.getValue() / max));
-
-                }
-            }
-            this.writer.flush();
-            this.writer.close();
         }
     }
 
@@ -125,19 +135,128 @@ public class FileManager {
      */
     public void generateVocabularyFile(double totalCollectionFiles) {
         try {
-            this.writer = new PrintWriter(RESULTS_DIRECTORY + "Vocabulario.txt");
+            PrintWriter writer = new PrintWriter(RESULTS_DIRECTORY + "Vocabulario.txt");
+
+            for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
+                this.writeToFile(writer, 0, word.getKey(), false);
+                this.writeToFile(writer, 1, Double.toString(word.getValue()), false);
+                this.writeToFile(writer, 2, Double.toString(Math.log10(totalCollectionFiles / word.getValue())), false);
+            }
+
+            writer.flush();
+            writer.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
 
-        for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
-            this.writeToFile(0, word.getKey());
-            this.writeToFile(1, Double.toString(word.getValue()));
-            this.writeToFile(2, Double.toString(Math.log10(totalCollectionFiles / word.getValue())));
+    }
+
+    private Map<String, Double> loadVocabularyFile() {
+        Map<String, Double> vocabulary = new TreeMap<>();
+
+        try (Stream<String> stream = Files.lines(Paths.get(FileManager.RESULTS_DIRECTORY + "Vocabulario.txt"))) {
+            stream.forEach(line -> {
+                vocabulary.put(line.substring(0, 30).trim(), Double.parseDouble(line.substring(43, line.length() - 1).trim()));
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        this.writer.flush();
-        this.writer.close();
+        return vocabulary;
+    }
+
+    private String[] findTokFiles() {
+        File file = new File(FileManager.RESULTS_DIRECTORY);
+        FilenameFilter filter = (dir, fileName) -> fileName.endsWith(".tok");
+        String[] tokFiles = file.list(filter);
+
+        if (tokFiles == null) {
+            System.err.println("No se encontraron archivos.");
+        }
+
+        return tokFiles;
+    }
+
+    private void generatePostingsFile(Map<String, ArrayList<Pair<String, Double>>> postingsValues) {
+        try {
+            final PrintWriter postingsWriter = new PrintWriter(RESULTS_DIRECTORY + "Postings.txt");
+
+            postingsValues.forEach((term, pairsList) -> {
+                pairsList.forEach(aliasWeightPair -> {
+                    this.writeToFile(postingsWriter, 0, term, false);
+                    this.writeToFile(postingsWriter, 0, aliasWeightPair.getKey().trim(), false);
+                    this.writeToFile(postingsWriter, 2, Double.toString(aliasWeightPair.getValue()), false);
+                });
+            });
+
+            postingsWriter.flush();
+            postingsWriter.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void generateIndexFile(Map<String, ArrayList<Integer>> postingsValues) {
+        try {
+            final PrintWriter indexWriter = new PrintWriter(RESULTS_DIRECTORY + "Indice.txt");
+
+            postingsValues.forEach((term, valuePair) -> {
+                this.writeToFile(indexWriter, 0, term, false);
+                this.writeToFile(indexWriter, 1, Integer.toString(valuePair.get(0)), false);
+                this.writeToFile(indexWriter, 1, Integer.toString(valuePair.get(1)), true);
+            });
+
+            indexWriter.flush();
+            indexWriter.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void generateWtdPostingsIndexFiles() throws FileNotFoundException {
+        Map<String, Double> vocabulary = this.loadVocabularyFile();
+        Map<String, ArrayList<Integer>> postingsValuesForIndex = new TreeMap<>();
+        Map<String, ArrayList<Pair<String, Double>>> postingsValues = new TreeMap<>();
+        String[] tokFiles = this.findTokFiles();
+        final int[] postingsLineCount = {0};
+
+        Arrays.stream(tokFiles).forEach(tokFileName -> {
+            try (Stream<String> stream = Files.lines(Paths.get(FileManager.RESULTS_DIRECTORY + tokFileName))) {
+                PrintWriter wtdWriter = new PrintWriter(RESULTS_DIRECTORY + "wtd/" + tokFileName.replace(".tok", ".wtd"));
+                stream.forEach(line -> {
+                    String term = line.substring(0, 30).trim();
+                    double normalizedFrequency = Double.parseDouble(line.substring(44, line.length() - 1).trim());
+                    this.writeToFile(wtdWriter, 0, term, false);
+                    this.writeToFile(wtdWriter, 2, Double.toString(vocabulary.get(term) * normalizedFrequency), false);
+
+                    if (postingsValues.containsKey(term)) {
+                        postingsValues.get(term).add(new Pair<>(tokFileName.substring(0, tokFileName.length() - 4), vocabulary.get(term) * normalizedFrequency));
+                    } else {
+                        postingsValues.put(term, new ArrayList<>(Collections.singletonList(new Pair<>(tokFileName.substring(0, tokFileName.length() - 4), vocabulary.get(term) * normalizedFrequency))));
+                    }
+
+                    postingsLineCount[0]++;
+
+                    if (postingsValuesForIndex.containsKey(term)) {
+                        postingsValuesForIndex.put(term, new ArrayList<>(Arrays.asList(postingsValuesForIndex.get(term).get(0), postingsValuesForIndex.get(term).get(1) + 1)));
+                    } else {
+                        postingsValuesForIndex.put(term, new ArrayList<>(Arrays.asList(postingsLineCount[0], 1)));
+                    }
+                });
+
+                wtdWriter.flush();
+                wtdWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        this.generatePostingsFile(postingsValues);
+        this.generateIndexFile(postingsValuesForIndex);
+
     }
 
     public Map<String, Map<String, Double>> getDocuments() {
