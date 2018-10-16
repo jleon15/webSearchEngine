@@ -84,7 +84,7 @@ public class FileManager {
      */
     private void writeValue(PrintWriter writer, String value, int maxColumnSize) {
         if (value.length() > maxColumnSize) {
-            value = value.substring(0, maxColumnSize - 1);
+            value = value.substring(0, maxColumnSize);
             writer.print(value);
         } else {
             this.completeSpaces(writer, value, maxColumnSize);
@@ -104,7 +104,7 @@ public class FileManager {
 
         for (Map.Entry<String, Map<String, Double>> entry : this.documents.entrySet()) {
             try {
-                writer = new PrintWriter(RESULTS_DIRECTORY + entry.getKey().replace(".html", ".tok"));
+                writer = new PrintWriter(RESULTS_DIRECTORY+ "tok/" + entry.getKey().replace(".html", ".tok"));
 
                 if (entry.getValue().entrySet().size() != 0) {
                     max = entry.getValue().entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
@@ -152,6 +152,11 @@ public class FileManager {
 
     }
 
+    /**
+     * Carga los términos del archivo Vocabulary en un mapa junto con su frecuencia inversa
+     *
+     * @return vocabulary Mapa que contiene el vocabulario
+     */
     private Map<String, Double> loadVocabularyFile() {
         Map<String, Double> vocabulary = new TreeMap<>();
 
@@ -166,6 +171,11 @@ public class FileManager {
         return vocabulary;
     }
 
+    /**
+     * Encuentra cuáles son cada uno de los archivos .tok que se deben recorrer, y almacena sus nombre en un array.
+     *
+     * @return tokFiles Arreglo con todos los nombres de los archivos de extensión .tok
+     */
     private String[] findTokFiles() {
         File file = new File(FileManager.RESULTS_DIRECTORY);
         FilenameFilter filter = (dir, fileName) -> fileName.endsWith(".tok");
@@ -178,6 +188,14 @@ public class FileManager {
         return tokFiles;
     }
 
+    /**
+     * Genera el archivo Postings que contiene:
+     * -Palabra.
+     * -Alias del docuemnto en el que aparece.
+     * -Peso (wij).
+     * @param postingsValues Mapa con los términos y una lista formada por pares que corresponden al alias del
+     *                       documento y el peso
+     */
     private void generatePostingsFile(Map<String, ArrayList<Pair<String, Double>>> postingsValues) {
         try {
             final PrintWriter postingsWriter = new PrintWriter(RESULTS_DIRECTORY + "Postings.txt");
@@ -198,6 +216,14 @@ public class FileManager {
         }
     }
 
+    /**
+     * Genera el archivo Indice que contiene:
+     * -Palabra.
+     * -Número de línea que corresponde a la primera aparición en el archivo Postings.
+     * -Cantidad de veces que aparece en este archivo.
+     * @param postingsValues Mapa con los términos y una lista formada por pares que corresponden al número de línea
+     *                       de la primera aparición y la cantidad de veces que aparece
+     */
     private void generateIndexFile(Map<String, ArrayList<Integer>> postingsValues) {
         try {
             final PrintWriter indexWriter = new PrintWriter(RESULTS_DIRECTORY + "Indice.txt");
@@ -216,6 +242,13 @@ public class FileManager {
         }
     }
 
+    /**
+     * Genera los archivos .wtd que contienen:
+     * -Palabra
+     * -Peso (frecuencia normalizada * frecuncia inversa)
+     * Y va llenando el mapa que se utiliza para generar después el archivo Postings y el Indice.
+     * @throws FileNotFoundException
+     */
     public void generateWtdPostingsIndexFiles() throws FileNotFoundException {
         Map<String, Double> vocabulary = this.loadVocabularyFile();
         Map<String, ArrayList<Integer>> postingsValuesForIndex = new TreeMap<>();
