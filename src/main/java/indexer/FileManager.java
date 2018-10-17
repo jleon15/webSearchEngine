@@ -18,6 +18,7 @@ public class FileManager {
      * Contiene el path donde se debe almacenar los resultados.
      */
     private static final String RESULTS_DIRECTORY = "./src/main/java/resources/Results/";
+    private static final String TOK_DIRECTORY = "./src/main/java/resources/Results/tok";
 
     private Map<String, Map<String, Double>> documents;
 
@@ -177,7 +178,7 @@ public class FileManager {
      * @return tokFiles Arreglo con todos los nombres de los archivos de extensión .tok
      */
     private String[] findTokFiles() {
-        File file = new File(FileManager.RESULTS_DIRECTORY);
+        File file = new File(FileManager.TOK_DIRECTORY);
         FilenameFilter filter = (dir, fileName) -> fileName.endsWith(".tok");
         String[] tokFiles = file.list(filter);
 
@@ -257,7 +258,7 @@ public class FileManager {
         final int[] postingsLineCount = {0};
 
         Arrays.stream(tokFiles).forEach(tokFileName -> {
-            try (Stream<String> stream = Files.lines(Paths.get(FileManager.RESULTS_DIRECTORY + tokFileName))) {
+            try (Stream<String> stream = Files.lines(Paths.get(FileManager.TOK_DIRECTORY + tokFileName))) {
                 PrintWriter wtdWriter = new PrintWriter(RESULTS_DIRECTORY + "wtd/" + tokFileName.replace(".tok", ".wtd"));
                 stream.forEach(line -> {
                     String term = line.substring(0, 30).trim();
