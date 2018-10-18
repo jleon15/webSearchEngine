@@ -18,7 +18,7 @@ public class FileManager {
      * Contiene el path donde se debe almacenar los resultados.
      */
     private static final String RESULTS_DIRECTORY = "./src/main/java/resources/Results/";
-    private static final String TOK_DIRECTORY = "./src/main/java/resources/Results/tok";
+    private static final String TOK_DIRECTORY = "./src/main/java/resources/Results/tok/";
 
     private Map<String, Map<String, Double>> documents;
 
@@ -222,17 +222,18 @@ public class FileManager {
      * -Palabra.
      * -Número de línea que corresponde a la primera aparición en el archivo Postings.
      * -Cantidad de veces que aparece en este archivo.
-     * @param postingsValues Mapa con los términos y una lista formada por pares que corresponden al número de línea
-     *                       de la primera aparición y la cantidad de veces que aparece
+     * @param postingsValues Mapa con los términos y la cantidad de veces que aparece ese término en el archivo postings
      */
-    private void generateIndexFile(Map<String, ArrayList<Integer>> postingsValues) {
+    private void generateIndexFile(Map<String, Integer> postingsValues) {
         try {
             final PrintWriter indexWriter = new PrintWriter(RESULTS_DIRECTORY + "Indice.txt");
+            final int[] lineCount = {1};
 
-            postingsValues.forEach((term, valuePair) -> {
+            postingsValues.forEach((term, value) -> {
                 this.writeToFile(indexWriter, 0, term, false);
-                this.writeToFile(indexWriter, 1, Integer.toString(valuePair.get(0)), false);
-                this.writeToFile(indexWriter, 1, Integer.toString(valuePair.get(1)), true);
+                this.writeToFile(indexWriter, 1, Integer.toString(lineCount[0]), false);
+                this.writeToFile(indexWriter, 1, Integer.toString(value), true);
+                lineCount[0] += value;
             });
 
             indexWriter.flush();
@@ -252,10 +253,9 @@ public class FileManager {
      */
     public void generateWtdPostingsIndexFiles() throws FileNotFoundException {
         Map<String, Double> vocabulary = this.loadVocabularyFile();
-        Map<String, ArrayList<Integer>> postingsValuesForIndex = new TreeMap<>();
+        Map<String, Integer> postingsValuesForIndex = new TreeMap<>();
         Map<String, ArrayList<Pair<String, Double>>> postingsValues = new TreeMap<>();
         String[] tokFiles = this.findTokFiles();
-        final int[] postingsLineCount = {0};
 
         Arrays.stream(tokFiles).forEach(tokFileName -> {
             try (Stream<String> stream = Files.lines(Paths.get(FileManager.TOK_DIRECTORY + tokFileName))) {
@@ -272,12 +272,10 @@ public class FileManager {
                         postingsValues.put(term, new ArrayList<>(Collections.singletonList(new Pair<>(tokFileName.substring(0, tokFileName.length() - 4), vocabulary.get(term) * normalizedFrequency))));
                     }
 
-                    postingsLineCount[0]++;
-
                     if (postingsValuesForIndex.containsKey(term)) {
-                        postingsValuesForIndex.put(term, new ArrayList<>(Arrays.asList(postingsValuesForIndex.get(term).get(0), postingsValuesForIndex.get(term).get(1) + 1)));
+                        postingsValuesForIndex.put(term, postingsValuesForIndex.get(term) + 1);
                     } else {
-                        postingsValuesForIndex.put(term, new ArrayList<>(Arrays.asList(postingsLineCount[0], 1)));
+                        postingsValuesForIndex.put(term, 1);
                     }
                 });
 
