@@ -52,9 +52,14 @@ public class FileManager {
                 }
                 break;
             }
-            default: {
+            case 2: {
                 this.writeValue(writer, value, 20);
                 writer.println();
+                break;
+            }
+            default: {
+                this.writeValue(writer, value, 31);
+                writer.print(" ");
                 break;
             }
         }
@@ -204,7 +209,7 @@ public class FileManager {
             postingsValues.forEach((term, pairsList) -> {
                 pairsList.forEach(aliasWeightPair -> {
                     this.writeToFile(postingsWriter, 0, term, false);
-                    this.writeToFile(postingsWriter, 0, aliasWeightPair.getKey().trim(), false);
+                    this.writeToFile(postingsWriter, 3, aliasWeightPair.getKey().trim(), false);
                     this.writeToFile(postingsWriter, 2, Double.toString(aliasWeightPair.getValue()), false);
                 });
             });
