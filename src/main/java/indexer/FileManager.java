@@ -1,8 +1,9 @@
-package indexer;
+﻿package indexer;
 
 import javafx.util.Pair;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -110,7 +111,9 @@ public class FileManager {
 
         for (Map.Entry<String, Map<String, Double>> entry : this.documents.entrySet()) {
             try {
-                writer = new PrintWriter(RESULTS_DIRECTORY+ "tok/" + entry.getKey().replace(".html", ".tok"));
+                writer = new PrintWriter(new OutputStreamWriter(
+                        new FileOutputStream(RESULTS_DIRECTORY+ "tok/" + entry.getKey().replace(".html", ".tok")),
+                        StandardCharsets.UTF_8));                
 
                 if (entry.getValue().entrySet().size() != 0) {
                     max = entry.getValue().entrySet().stream().max(Map.Entry.comparingByValue()).get().getValue();
@@ -141,7 +144,7 @@ public class FileManager {
      */
     public void generateVocabularyFile(double totalCollectionFiles) {
         try {
-            PrintWriter writer = new PrintWriter(RESULTS_DIRECTORY + "Vocabulario.txt");
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(RESULTS_DIRECTORY + "Vocabulario.txt"), StandardCharsets.UTF_8));
 
             for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
                 this.writeToFile(writer, 0, word.getKey(), false);
