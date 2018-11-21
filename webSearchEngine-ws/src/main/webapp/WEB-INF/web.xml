@@ -10,7 +10,7 @@
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>/WEB-INF/psm-ws-mvc.spring.xml</param-value>
+            <param-value>/WEB-INF/webSearchEngine-ws-mvc.spring.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -45,11 +45,8 @@
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
-            /WEB-INF/psm-ws.spring.xml,
-            /WEB-INF/psm-web-security.spring.xml,
-            classpath:psm-core.spring.xml,
-            classpath:psm-persistence.spring.xml,
-            classpath:psm-security.spring.xml
+            /WEB-INF/webSearchEngine-ws.spring.xml,
+            classpath:search-engine-core.spring.xml,
         </param-value>
     </context-param>
 
@@ -65,24 +62,4 @@
         </listener-class>
     </listener>
 
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-    <filter>
-        <filter-name>OpenSessionInViewFilter</filter-name>
-        <filter-class>programathon.psm.support.hibernate.CustomHibernateSessionFilter</filter-class>
-        <init-param>
-            <param-name>sessionFactoryBeanName</param-name>
-            <param-value>sessionFactory</param-value>
-        </init-param>
-    </filter>
-    <filter-mapping>
-        <filter-name>OpenSessionInViewFilter</filter-name>
-        <url-pattern>/ws/*</url-pattern>
-    </filter-mapping>
 </web-app>

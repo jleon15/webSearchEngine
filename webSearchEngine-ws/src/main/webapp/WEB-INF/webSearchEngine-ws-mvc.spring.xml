@@ -11,20 +11,11 @@ xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springf
 
 	<mvc:annotation-driven/>
 
-	<context:component-scan base-package="psm.web.controllers" />
+	<context:component-scan base-package="webSearchEngine.web.controllers" />
 
-	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	<bean class="org.springframework.web.servlet.view.InternalResourceView">
         <property name="prefix" value="/WEB-INF/jspx/" />
         <property name="suffix" value=".jspx" />
     </bean>
 
-    <mvc:interceptors>
-        <mvc:interceptor>
-            <mvc:mapping path="/**"/>
-            <bean class="programathon.psm.support.hibernate.HibernateSessionInterceptor">
-                <property name="sessionFactory" ref="sessionFactory"/>
-            </bean>
-        </mvc:interceptor>
-    </mvc:interceptors>
-    
 </beans>

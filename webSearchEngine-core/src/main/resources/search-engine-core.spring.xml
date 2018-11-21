@@ -13,17 +13,7 @@
        default-init-method="init"
        default-destroy-method="destroy">
 
-    <context:component-scan base-package="programathon.psm.core"/>
+    <context:component-scan base-package="core.result"/>
     <aop:aspectj-autoproxy/>
-
-    <bean id="rootPlaceholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:psm.properties</value>
-                <value>file:${user.home}/psm/psm.properties</value>
-            </list>
-        </property>
-        <property name="ignoreResourceNotFound" value="true"/>
-    </bean>
 
 </beans>
