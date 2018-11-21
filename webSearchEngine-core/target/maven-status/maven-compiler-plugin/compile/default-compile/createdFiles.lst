@@ -1,0 +1,7 @@
+webSearchEngine\ri\indexerBuild\FileManager.class
+webSearchEngine\ri\support\flexjson\JSONSerializerBuilder.class
+webSearchEngine\ri\indexerBuild\IndexerController.class
+webSearchEngine\ri\core\result\service\impl\ResultServiceImpl.class
+webSearchEngine\ri\indexerBuild\HTMLParser.class
+webSearchEngine\ri\model\QueryResult.class
+webSearchEngine\ri\core\result\service\ResultService.class

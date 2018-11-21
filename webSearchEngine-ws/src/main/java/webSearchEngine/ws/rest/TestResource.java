@@ -1,6 +1,6 @@
 package webSearchEngine.ws.rest;
 
-import core.result.service.ResultService;
+import webSearchEngine.ri.core.result.service.ResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -19,8 +19,7 @@ public class TestResource {
 
     @GET
     public Response testService(){
-        this.service.sayHello();
-        return Response.ok().build();
+        return Response.ok().entity(this.service.sayHello()).build();
     }
 
 }

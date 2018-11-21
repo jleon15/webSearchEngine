@@ -1,0 +1,3 @@
+webSearchEngine\ws\rest\TestResource.class
+webSearchEngine\web\controllers\IndexController.class
+webSearchEngine\ws\rest\support\CORSFilter.class

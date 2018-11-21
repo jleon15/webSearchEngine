@@ -1,4 +1,4 @@
-package psm.ws.rest.support;
+package webSearchEngine.ws.rest.support;
 
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerResponse;
