@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -18,8 +19,7 @@ public class FileManager {
     /**
      * Contiene el path donde se debe almacenar los resultados.
      */
-    private static final String RESULTS_DIRECTORY = "./src/main/java/webSearchEngine.ri.resources/Results/";
-    private static final String TOK_DIRECTORY = "./src/main/java/webSearchEngine.ri.resources/Results/tok/";
+    private static final String RESULTS_DIRECTORY = "./webSearchEngine-core/src/main/java/webSearchEngine/ri/resources/Results";
 
     private Map<String, Map<String, Double>> documents;
 
@@ -112,7 +112,7 @@ public class FileManager {
         for (Map.Entry<String, Map<String, Double>> entry : this.documents.entrySet()) {
             try {
                 writer = new PrintWriter(new OutputStreamWriter(
-                        new FileOutputStream(RESULTS_DIRECTORY+ "tok/" + entry.getKey().replace(".html", ".tok")),
+                        new FileOutputStream(RESULTS_DIRECTORY+ "/tok/" + entry.getKey().replace(".html", ".tok")),
                         StandardCharsets.UTF_8));                
 
                 if (entry.getValue().entrySet().size() != 0) {
@@ -144,7 +144,7 @@ public class FileManager {
      */
     public void generateVocabularyFile(double totalCollectionFiles) {
         try {
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(RESULTS_DIRECTORY + "Vocabulario.txt"), StandardCharsets.UTF_8));
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(RESULTS_DIRECTORY + "/Vocabulario.txt"), StandardCharsets.UTF_8));
 
             for (Map.Entry<String, Double> word : this.vocabulary.entrySet()) {
                 this.writeToFile(writer, 0, word.getKey(), false);
@@ -169,7 +169,7 @@ public class FileManager {
     private Map<String, Double> loadVocabularyFile() {
         Map<String, Double> vocabulary = new TreeMap<>();
 
-        try (Stream<String> stream = Files.lines(Paths.get(FileManager.RESULTS_DIRECTORY + "Vocabulario.txt"))) {
+        try (Stream<String> stream = Files.lines(Paths.get(FileManager.RESULTS_DIRECTORY + "/Vocabulario.txt"))) {
             stream.forEach(line -> {
                 vocabulary.put(line.substring(0, 30).trim(), Double.parseDouble(line.substring(43, line.length() - 1).trim()));
             });
@@ -186,7 +186,7 @@ public class FileManager {
      * @return tokFiles Arreglo con todos los nombres de los archivos de extensión .tok
      */
     private String[] findTokFiles() {
-        File file = new File(FileManager.TOK_DIRECTORY);
+        File file = new File(FileManager.RESULTS_DIRECTORY + "/tok");
         FilenameFilter filter = (dir, fileName) -> fileName.endsWith(".tok");
         String[] tokFiles = file.list(filter);
 
@@ -207,13 +207,14 @@ public class FileManager {
      */
     private void generatePostingsFile(Map<String, ArrayList<Pair<String, Double>>> postingsValues) {
         try {
-            final PrintWriter postingsWriter = new PrintWriter(RESULTS_DIRECTORY + "Postings.txt");
+            final PrintWriter postingsWriter = new PrintWriter(RESULTS_DIRECTORY + "/Postings.txt");
+            DecimalFormat df = new DecimalFormat("#.##################");
 
             postingsValues.forEach((term, pairsList) -> {
                 pairsList.forEach(aliasWeightPair -> {
                     this.writeToFile(postingsWriter, 0, term, false);
                     this.writeToFile(postingsWriter, 3, aliasWeightPair.getKey().trim(), false);
-                    this.writeToFile(postingsWriter, 2, Double.toString(aliasWeightPair.getValue()), false);
+                    this.writeToFile(postingsWriter, 2, df.format(aliasWeightPair.getValue()), false);
                 });
             });
 
@@ -234,7 +235,7 @@ public class FileManager {
      */
     private void generateIndexFile(Map<String, Integer> postingsValues) {
         try {
-            final PrintWriter indexWriter = new PrintWriter(RESULTS_DIRECTORY + "Indice.txt");
+            final PrintWriter indexWriter = new PrintWriter(RESULTS_DIRECTORY + "/Indice.txt");
             final int[] lineCount = {1};
 
             postingsValues.forEach((term, value) -> {
@@ -266,8 +267,8 @@ public class FileManager {
         String[] tokFiles = this.findTokFiles();
 
         Arrays.stream(tokFiles).forEach(tokFileName -> {
-            try (Stream<String> stream = Files.lines(Paths.get(FileManager.TOK_DIRECTORY + tokFileName))) {
-                PrintWriter wtdWriter = new PrintWriter(RESULTS_DIRECTORY + "wtd/" + tokFileName.replace(".tok", ".wtd"));
+            try (Stream<String> stream = Files.lines(Paths.get(FileManager.RESULTS_DIRECTORY + "/tok/" + tokFileName))) {
+                PrintWriter wtdWriter = new PrintWriter(RESULTS_DIRECTORY + "/wtd/" + tokFileName.replace(".tok", ".wtd"));
                 stream.forEach(line -> {
                     String term = line.substring(0, 30).trim();
                     double normalizedFrequency = Double.parseDouble(line.substring(44, line.length() - 1).trim());

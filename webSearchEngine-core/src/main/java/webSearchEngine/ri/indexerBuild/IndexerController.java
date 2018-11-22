@@ -15,7 +15,7 @@ public class IndexerController {
     /**
      * Tiene el directorio base donde se tienen que buscar todos los archivos de la colección.
      */
-    private static final String BASE_DIRECTORY = "./src/main/java/webSearchEngine.ri.resources/Coleccion/";
+    private static final String BASE_DIRECTORY = "./webSearchEngine-core/src/main/java/webSearchEngine/ri/resources/Coleccion/";
 
     /**
      * Este mapa contiene:
@@ -32,7 +32,7 @@ public class IndexerController {
     private Map<String, Double> vocabulary;
 
     /**
-     * Instancia del HTMLParser que sirve para parsear cada uno de los archivos html de la colección.
+     * Instancia del searchEngine.indexer.HTMLParser que sirve para parsear cada uno de los archivos html de la colección.
      */
     private HTMLParser htmlParser;
 
@@ -75,7 +75,7 @@ public class IndexerController {
 
     /**
      * Itera sobre el array que contiene los nombres de los archivos a parsear y llama
-     * al método de parseo que contiene el HTMLParser.
+     * al método de parseo que contiene el searchEngine.indexer.HTMLParser.
      */
     private void parseFiles (){
         for (String textfile : this.textfiles) {

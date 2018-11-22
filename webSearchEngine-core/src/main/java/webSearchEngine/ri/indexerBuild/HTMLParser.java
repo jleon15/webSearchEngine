@@ -20,7 +20,7 @@ public class HTMLParser {
     /**
      * Dirección del archivo que contiene los "stopwords".
      */
-    private static final String STOPWORDS_FILE_PATH = "./src/main/java/webSearchEngine.ri.resources/stopwords.txt";
+    private static final String STOPWORDS_FILE_PATH = "./webSearchEngine-core/src/main/java/webSearchEngine/ri/resources/stopwords.txt";
 
     /**
      * Expresiones regulares que permiten excluir contenido de los htmls.
@@ -51,6 +51,7 @@ public class HTMLParser {
         this.vocabulary = vocabulary;
         this.stopWords = new LinkedList<>();
         this.loadStopWords();
+
     }
 
     /**
@@ -126,7 +127,7 @@ public class HTMLParser {
         Map<String, Double> words = new TreeMap<String, Double>();
         for (String term : text) {
             term = term.trim();
-            if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !stopWords.contains(term)
+            if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !this.stopWords.contains(term)
                     && !this.isSmallWord(term)) {
 
                 if (!words.containsKey(term)) {
