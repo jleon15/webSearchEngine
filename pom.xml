@@ -28,7 +28,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>searchEngine.indexer.IndexerController</mainClass>
+                            <mainClass>indexer.IndexerController</mainClass>
                         </manifest>
                     </archive>
 
