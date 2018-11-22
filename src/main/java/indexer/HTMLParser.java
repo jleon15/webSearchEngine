@@ -1,10 +1,12 @@
-package searchEngine.indexer;
+package indexer;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Entities;
+import org.jsoup.parser.Parser;
 import org.mozilla.universalchardet.UniversalDetector;
 
+import javax.xml.crypto.dsig.dom.DOMSignContext;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -51,7 +53,6 @@ public class HTMLParser {
         this.vocabulary = vocabulary;
         this.stopWords = new LinkedList<>();
         this.loadStopWords();
-
     }
 
     /**
@@ -127,7 +128,7 @@ public class HTMLParser {
         Map<String, Double> words = new TreeMap<String, Double>();
         for (String term : text) {
             term = term.trim();
-            if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !this.stopWords.contains(term)
+            if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !stopWords.contains(term)
                     && !this.isSmallWord(term)) {
 
                 if (!words.containsKey(term)) {

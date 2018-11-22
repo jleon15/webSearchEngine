@@ -1,4 +1,4 @@
-package searchEngine.indexer;
+﻿package indexer;
 
 import javafx.util.Pair;
 
@@ -6,7 +6,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -209,13 +208,12 @@ public class FileManager {
     private void generatePostingsFile(Map<String, ArrayList<Pair<String, Double>>> postingsValues) {
         try {
             final PrintWriter postingsWriter = new PrintWriter(RESULTS_DIRECTORY + "Postings.txt");
-            DecimalFormat df = new DecimalFormat("#.##################");
 
             postingsValues.forEach((term, pairsList) -> {
                 pairsList.forEach(aliasWeightPair -> {
                     this.writeToFile(postingsWriter, 0, term, false);
                     this.writeToFile(postingsWriter, 3, aliasWeightPair.getKey().trim(), false);
-                    this.writeToFile(postingsWriter, 2, df.format(aliasWeightPair.getValue()), false);
+                    this.writeToFile(postingsWriter, 2, Double.toString(aliasWeightPair.getValue()), false);
                 });
             });
 
