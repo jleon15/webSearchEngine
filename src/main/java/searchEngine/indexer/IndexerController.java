@@ -1,9 +1,8 @@
-package indexer;
+package searchEngine.indexer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -33,7 +32,7 @@ public class IndexerController {
     private Map<String, Double> vocabulary;
 
     /**
-     * Instancia del HTMLParser que sirve para parsear cada uno de los archivos html de la colección.
+     * Instancia del searchEngine.indexer.HTMLParser que sirve para parsear cada uno de los archivos html de la colección.
      */
     private HTMLParser htmlParser;
 
@@ -76,7 +75,7 @@ public class IndexerController {
 
     /**
      * Itera sobre el array que contiene los nombres de los archivos a parsear y llama
-     * al método de parseo que contiene el HTMLParser.
+     * al método de parseo que contiene el searchEngine.indexer.HTMLParser.
      */
     private void parseFiles (){
         for (String textfile : this.textfiles) {
@@ -99,7 +98,7 @@ public class IndexerController {
     }
 
     public static void main (String args[]){
-        IndexerController indexerController = new indexer.IndexerController();
+        IndexerController indexerController = new IndexerController();
         indexerController.findFiles();
         indexerController.parseFiles();
         indexerController.generateFiles();
