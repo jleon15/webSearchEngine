@@ -14,7 +14,7 @@ public class QueryProcessor {
     /**
      * Dirección del archivo que contiene los "stopwords".
      */
-    private static final String BASE_FILE_PATH = "./webSearchEngine-core/src/main/java/webSearchEngine/ri/resources/";
+    private static final String BASE_FILE_PATH = "D:\\Users\\Silvia\\Desktop\\webSearchEngine\\webSearchEngine-core\\src\\main\\java\\webSearchEngine\\ri\\resources\\";
 
     /**
      * Contiene una lista de los "stopwords" que se recuperaron del archivo.
@@ -44,9 +44,9 @@ public class QueryProcessor {
     /**
      * Parsea la consulta, hace los calculos necesarios y obtiene los documentos
      */
-    private void manageQuery() {
+    public List<Pair<String, String>> manageQuery() {
         double maxFreq = 1;
-        String[] text = this.query.split(" ");
+        String[] text = this.query.split("-");
         for (String term : text) {
             term = term.trim();
             if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !this.stopWords.contains(term)
@@ -70,6 +70,8 @@ public class QueryProcessor {
         this.loadPostingsFile();
         this.loadUrlsFile();
         this.getSimilarity();
+        System.out.println(results);
+        return this.results;
     }
 
     /**
@@ -176,7 +178,7 @@ public class QueryProcessor {
             }
             double similarity = firstSum / (Math.sqrt(secondSum) * Math.sqrt(thirdSum));
             if (similarity > 0) {
-                unsortedResults.put(currentDocument.getKey(), similarity);
+                unsortedResults.put(currentDocument.getKey().trim(), similarity);
             }
             this.similarityMap = unsortedResults.entrySet()
                     .stream()
@@ -197,7 +199,7 @@ public class QueryProcessor {
         try (Stream<String> stream = Files.lines(Paths.get(BASE_FILE_PATH + "URLS.txt"))) {
             stream.forEach(line -> {
                 String[] currentLine = line.split(" ");
-                currentLine[0] = currentLine[0].replace(".html", "");
+                currentLine[0] = currentLine[0].replace(".html", "").trim();
                 urls.put(currentLine[0], currentLine[1]);
             });
         } catch (IOException e) {
