@@ -14,7 +14,7 @@ public class QueryProcessor {
     /**
      * Dirección del archivo que contiene los "stopwords".
      */
-    private static final String BASE_FILE_PATH = "D:\\Users\\Silvia\\Desktop\\webSearchEngine\\webSearchEngine-core\\src\\main\\java\\webSearchEngine\\ri\\resources\\";
+    private static final String BASE_FILE_PATH = "C:\\Users\\Usuario1\\IntelliJIdeaProjects\\webSearchEngine\\webSearchEngine-core\\src\\main\\java\\webSearchEngine\\ri\\resources\\";
 
     /**
      * Contiene una lista de los "stopwords" que se recuperaron del archivo.
@@ -46,7 +46,7 @@ public class QueryProcessor {
      */
     public List<Pair<String, String>> manageQuery() {
         double maxFreq = 1;
-        String[] text = this.query.split("-");
+        String[] text = this.query.split(" ");
         for (String term : text) {
             term = term.trim();
             if (!term.equals("") && !term.equals(" ") && term.length() <= 30 && !this.stopWords.contains(term)
@@ -82,9 +82,14 @@ public class QueryProcessor {
         for (Map.Entry<String, Query> word : this.queryTerms.entrySet()) {
             Query currentQuery = word.getValue();
             currentQuery.setF(currentQuery.getFreq() / maxFreq);
-            currentQuery.setW((0.5 + (0.5 * currentQuery.getFreq())) * vocabulary.get(word.getKey()));
+            if (vocabulary.containsKey(word.getKey())){
+                currentQuery.setW((0.5 + (0.5 * currentQuery.getFreq())) * vocabulary.get(word.getKey()));
+            }
+            else
+            {
+                currentQuery.setW(0.0);
+            }
         }
-
     }
 
     /**
@@ -125,6 +130,7 @@ public class QueryProcessor {
             stream.forEach(line -> {
                 this.vocabulary.put(line.substring(0, 30).trim(), Double.parseDouble(line.substring(43, line.length() - 1).trim()));
             });
+            System.out.println("VOCABULARY: "+this.vocabulary);
         } catch (IOException e) {
             e.printStackTrace();
         }

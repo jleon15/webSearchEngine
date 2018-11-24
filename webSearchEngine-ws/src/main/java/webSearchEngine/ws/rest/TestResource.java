@@ -28,7 +28,6 @@ public class TestResource {
     @Path("/result")
     @Produces(MediaType.APPLICATION_JSON)
     public Response testService(@QueryParam("query") String query) {
-        System.out.println("entre");
 
         if (StringUtils.isEmpty(query)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
