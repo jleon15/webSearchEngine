@@ -14,7 +14,7 @@ public class QueryProcessor {
     /**
      * Dirección del archivo que contiene los "stopwords".
      */
-    private static final String BASE_FILE_PATH = "C:\\Users\\Usuario1\\IntelliJIdeaProjects\\webSearchEngine\\webSearchEngine-core\\src\\main\\java\\webSearchEngine\\ri\\resources\\";
+    private static final String BASE_FILE_PATH = "D:\\Users\\Silvia\\Desktop\\webSearchEngine\\webSearchEngine-core\\src\\main\\java\\webSearchEngine\\ri\\resources\\";
 
     /**
      * Contiene una lista de los "stopwords" que se recuperaron del archivo.
@@ -70,7 +70,7 @@ public class QueryProcessor {
         this.loadPostingsFile();
         this.loadUrlsFile();
         this.getSimilarity();
-        System.out.println(results);
+      //  System.out.println(results);
         return this.results;
     }
 
@@ -130,7 +130,7 @@ public class QueryProcessor {
             stream.forEach(line -> {
                 this.vocabulary.put(line.substring(0, 30).trim(), Double.parseDouble(line.substring(43, line.length() - 1).trim()));
             });
-            System.out.println("VOCABULARY: "+this.vocabulary);
+           // System.out.println("VOCABULARY: "+this.vocabulary);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -191,7 +191,6 @@ public class QueryProcessor {
                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                     .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (e1, e2) -> e2, LinkedHashMap::new));
         }
-
         for (Map.Entry<String, Double> currentDocument : similarityMap.entrySet()) {
             this.results.add(new Pair<>(currentDocument.getKey(), urls.get(currentDocument.getKey())));
         }
@@ -205,6 +204,7 @@ public class QueryProcessor {
         try (Stream<String> stream = Files.lines(Paths.get(BASE_FILE_PATH + "URLS.txt"))) {
             stream.forEach(line -> {
                 String[] currentLine = line.split(" ");
+                currentLine[0] = currentLine[0].replaceAll("\\p{C}", "");
                 currentLine[0] = currentLine[0].replace(".html", "").trim();
                 urls.put(currentLine[0], currentLine[1]);
             });
@@ -215,7 +215,7 @@ public class QueryProcessor {
 
 
     public static void main(String[] args) {
-        QueryProcessor q = new QueryProcessor("roger federer tennis");
+        QueryProcessor q = new QueryProcessor("banco mundial");
         q.manageQuery();
     }
 
