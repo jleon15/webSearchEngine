@@ -30,7 +30,7 @@ public class QueryProcessor {
     private List<Pair<String, String>> results;
 
     public QueryProcessor(String query) {
-        this.query = query;
+        this.query = query.toLowerCase();
         this.queryTerms = new TreeMap<>();
         this.stopWords = new LinkedList<>();
         this.vocabulary = new TreeMap<>();
@@ -45,6 +45,7 @@ public class QueryProcessor {
      * Parsea la consulta, hace los calculos necesarios y obtiene los documentos
      */
     public List<Pair<String, String>> manageQuery() {
+        long startTime = System.nanoTime();
         double maxFreq = 1;
         String[] text = this.query.split(" ");
         for (String term : text) {
@@ -70,7 +71,10 @@ public class QueryProcessor {
         this.loadPostingsFile();
         this.loadUrlsFile();
         this.getSimilarity();
-      //  System.out.println(results);
+
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime)/1000000;  //divide by 1000000 to get milliseconds.
+        results.add(new Pair<>("tiempoFinal",Long.toString(duration)));
         return this.results;
     }
 
@@ -194,7 +198,7 @@ public class QueryProcessor {
         for (Map.Entry<String, Double> currentDocument : similarityMap.entrySet()) {
             this.results.add(new Pair<>(currentDocument.getKey(), urls.get(currentDocument.getKey())));
         }
-        System.out.println(results);
+        //System.out.println(results);
     }
 
     /**
@@ -215,7 +219,7 @@ public class QueryProcessor {
 
 
     public static void main(String[] args) {
-        QueryProcessor q = new QueryProcessor("banco mundial");
+        QueryProcessor q = new QueryProcessor("roger federer tennis");
         q.manageQuery();
     }
 
